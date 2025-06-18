@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Multiplayer Game</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Secure Multiplayer Game</h1>
+    <div class="scoreboard">
+      <div>Your Score: <span id="score">0</span></div>
+      <div>Your Rank: <span id="rank">-</span></div>
+    </div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="instructions">
+      <p>Use arrow keys or WASD to move</p>
+      <p>Collect gold circles to increase your score</p>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
