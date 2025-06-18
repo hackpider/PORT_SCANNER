@@ -1,57 +1,45 @@
-const express = require('express');
-const helmet = require('helmet');
-const http = require('http');
-const socketio = require('socket.io');
-const Game = require('./game');
+import express from 'express';
+import helmet from 'helmet';
+import http from 'http';
+import { Server } from 'socket.io';
+import Game from './Game.mjs';
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = new Server(server);
 
-// Security middleware
-app.use(helmet());
-app.use(helmet.noCache());
-app.use(helmet.xssFilter());
-app.use(helmet.noSniff());
+// Enhanced Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.socket.io"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "ws:"]
+    }
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true },
+  referrerPolicy: { policy: 'same-origin' }
+}));
+
+// Explicit security headers
 app.use((req, res, next) => {
-  res.setHeader('X-Powered-By', 'PHP 7.4.3');
+  res.setHeader('X-Content-Type-Options', 'nosniff'); // Requirement 16
+  res.setHeader('X-XSS-Protection', '1; mode=block'); // Requirement 17
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); // Requirement 18
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('X-Powered-By', 'PHP 7.4.3'); // Requirement 19
   next();
 });
 
-// Serve static files
-app.use(express.static('../client'));
+// Serve static files with additional security
+app.use(express.static('../client/public', {
+  setHeaders: (res) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-store');
+  }
+}));
 
-// Game instance
-const game = new Game();
-
-// Socket.io connection
-io.on('connection', (socket) => {
-  console.log('New player connected:', socket.id);
-  
-  // Add new player to game
-  game.addPlayer(socket.id);
-  
-  // Send initial game state
-  socket.emit('gameInit', {
-    playerId: socket.id,
-    gameState: game.getPublicState()
-  });
-  
-  // Handle player movement
-  socket.on('playerMove', (moveData) => {
-    game.handlePlayerMove(socket.id, moveData);
-    io.emit('gameUpdate', game.getPublicState());
-  });
-  
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    game.removePlayer(socket.id);
-    io.emit('gameUpdate', game.getPublicState());
-    console.log('Player disconnected:', socket.id);
-  });
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Rest of your server code remains the same...

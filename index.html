@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Secure Multiplayer Game</title>
   <link rel="stylesheet" href="style.css">
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Sanitize Socket.io script -->
+  <script src="/socket.io/socket.io.js" integrity="sha384-{YOUR_INTEGRITY_HASH}" crossorigin="anonymous"></script>
 </head>
 <body>
-  <div class="game-container">
+  <!-- Escape all dynamic content in your template -->
+  <div id="game-container">
     <h1>Secure Multiplayer Game</h1>
     <div class="scoreboard">
       <div>Your Score: <span id="score">0</span></div>
-      <div>Your Rank: <span id="rank">-</span></div>
+      <div id="rank">Rank: -/-</div>
     </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div class="instructions">
@@ -20,6 +26,6 @@
       <p>Collect gold circles to increase your score</p>
     </div>
   </div>
-  <script src="game.js"></script>
+  <script type="module" src="client.mjs"></script>
 </body>
 </html>
